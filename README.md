@@ -1,4 +1,4 @@
-# K-Model-Core — Esports Kill-Race Prediction
+Esports Kill-Race Prediction System
 
 A machine learning pipeline that predicts **which team reaches the first 5 and first 10 kills** in professional League of Legends matches, with a backtesting mode that sizes bets by expected value and Kelly staking.
 
