@@ -1,74 +1,24 @@
-# KModel Core
+# K-Model-Core — Esports Kill-Race Prediction
 
-Core machine learning pipeline for predicting which team reaches first 5 kills and first 10 kills in professional League of Legends matches.
+A machine learning pipeline that predicts **which team reaches the first 5 and first 10 kills** in professional League of Legends matches, with a backtesting mode that sizes bets by expected value and Kelly staking.
 
-This repo intentionally excludes Discord automation, live API polling, and GUI tooling. It focuses on the reproducible training and prediction pipeline.
+## What it does
 
-## What Is Included
+- **Features** — constructs team and game features from [Oracle's Elixir](https://oracleselixir.com/) match-data CSV exports.
+- **Leakage control** — uses a **time-based train/test split** so the model is never evaluated on information that came before it in training, which is the easiest thing to get wrong with match data.
+- **Models** — calibrated binary classifiers for `first5_blue` and `first10_blue` (predicting the blue side's kill-race outcomes). Calibration matters here: the downstream staking only works if the predicted probabilities are honest.
+- **Prediction** — a batch pipeline that scores upcoming matches.
+- **Backtesting** — an optional `first10` mode that evaluates a staking strategy using expected value and Kelly sizing.
 
-- Team/game feature construction from Oracle's Elixir CSV exports
-- Time-based training split to reduce leakage risk
-- Calibrated binary classifiers for `first5_blue` and `first10_blue`
-- Batch prediction pipeline for upcoming matches
-- Optional first10 backtesting mode with EV/Kelly staking
+## Quick start
 
-## Project Layout
-
-```text
-kmodel-core/
-  main.py
-  first_kills/
-    __init__.py
-    data_processing.py
-    feature_engineering.py
-    champion_tags.py
-    models.py
-    training.py
-    predict.py
-    betting_first10.py
-  tests/
-    test_predict_rolling_paths.py
-```
-
-## Quick Start
-
-1. Create and activate an environment (Python 3.9+ recommended).
-2. Install dependencies:
+Requires Python 3.9+.
 
 ```bash
 pip install -r requirements.txt
-```
 
-3. Run tests:
+# Train the kill-race classifiers
+python main.py --mode first_kills_train
 
-```bash
-python -m pytest -q
-```
-
-## Training
-
-```bash
-python main.py --mode first_kills_train \
-  --data 2024_LoL_esports_match_data_from_OraclesElixir.csv \
-  --split-date 2024-06-01 \
-  --output-dir output_first_kills \
-  --rolling-window 10
-```
-
-## Predicting
-
-```bash
-python main.py --mode first_kills_predict \
-  --data upcoming_games.csv \
-  --historical-data 2024_LoL_esports_match_data_from_OraclesElixir.csv \
-  --output-dir output_first_kills \
-  --predictions-file predictions.csv
-```
-
-## Data
-
-Use Oracle's Elixir exports as input CSVs. Keep raw data and generated artifacts out of version control for a lightweight portfolio repo.
-
-## License
-
-MIT (see `LICENSE`).
+# Predict upcoming matches
+python main.py --mode first_kills_predict
